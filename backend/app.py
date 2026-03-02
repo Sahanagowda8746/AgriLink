@@ -10,7 +10,7 @@ def create_app():
     app.config.from_object(Config)
 
     # Enable CORS for frontend at localhost:5173
-    CORS(app, origins=['http://localhost:5173', 'http://127.0.0.1:5173'],
+    CORS(app, origins=['http://localhost:5173', 'http://127.0.0.1:5173','https://agri-link-ewel.vercel.app'],
          supports_credentials=True)
 
     # Initialize database
