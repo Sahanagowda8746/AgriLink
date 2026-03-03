@@ -9,13 +9,14 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Enable CORS for frontend at localhost:5173
+    # Enable CORS for frontend (dev + production)
     CORS(
         app,
         resources={r"/api/*": {
             "origins": [
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
+                "https://agri-link-ewel.vercel.app",
             ]
         }},
         supports_credentials=True
@@ -46,6 +47,15 @@ def create_app():
     @app.route('/uploads/<filename>')
     def serve_upload(filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+    # Welcome route
+    @app.route('/')
+    def index():
+        return jsonify({
+            'message': 'Welcome to AgriLink API 🌱',
+            'status': 'running',
+            'docs': '/api/health'
+        }), 200
 
     # Health check
     @app.route('/api/health')
