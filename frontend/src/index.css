@@ -1145,8 +1145,475 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 @media (max-width: 768px) {
   .navbar-links { display: none; }
   .page-container { padding: 24px 16px; }
-  .chatbot-window { width: calc(100vw - 40px); right: 20px; }
+  .agribot-window { width: calc(100vw - 32px); right: 16px; bottom: 80px; }
   .hero { padding: 60px 20px; }
   .hero-stats { gap: 24px; }
   .section { padding: 48px 20px; }
+}
+
+/* ─── AgriBot AI Assistant ────────────────────────────────── */
+@keyframes agribot-slidein {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes agribot-pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+@keyframes wave-bar {
+  0%,100% { transform: scaleY(0.4); }
+  50%      { transform: scaleY(1.2); }
+}
+@keyframes typing-dot {
+  0%,80%,100% { transform: scale(0); opacity: 0.4; }
+  40%         { transform: scale(1);   opacity: 1; }
+}
+@keyframes mic-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+  70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+/* FAB */
+.agribot-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: 0 6px 24px rgba(34,197,94,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: agribot-pulseRing 2.5s infinite;
+}
+.agribot-fab:hover { transform: scale(1.1); box-shadow: 0 8px 30px rgba(34,197,94,0.6); }
+.agribot-fab.open { animation: none; background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.agribot-fab-icon { font-size: 1.6rem; line-height: 1; }
+.agribot-fab-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  background: #f59e0b;
+  color: #000;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+/* Window */
+.agribot-window {
+  position: fixed;
+  bottom: 104px;
+  right: 28px;
+  width: 400px;
+  max-height: 600px;
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9998;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.1);
+  animation: agribot-slidein 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: hidden;
+}
+
+/* Header */
+.agribot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(21,128,61,0.1));
+  border-bottom: 1px solid rgba(34,197,94,0.15);
+  gap: 10px;
+  flex-shrink: 0;
+}
+.agribot-header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.agribot-avatar-wrap { position: relative; flex-shrink: 0; }
+.agribot-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 0 12px rgba(34,197,94,0.4);
+}
+.agribot-avatar-wrap.speaking .agribot-avatar {
+  animation: agribot-pulseRing 1s infinite;
+}
+.agribot-wave {
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 2px; align-items: flex-end;
+}
+.wave-bar {
+  width: 3px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 2px;
+  transform-origin: bottom;
+}
+.bar-1 { animation: wave-bar 0.8s 0.0s ease-in-out infinite; }
+.bar-2 { animation: wave-bar 0.8s 0.1s ease-in-out infinite; }
+.bar-3 { animation: wave-bar 0.8s 0.2s ease-in-out infinite; }
+.bar-4 { animation: wave-bar 0.8s 0.1s ease-in-out infinite; }
+.bar-5 { animation: wave-bar 0.8s 0.0s ease-in-out infinite; }
+
+.agribot-name { font-weight: 700; font-size: 0.95rem; color: #f9fafb; }
+.agribot-status { font-size: 0.72rem; color: #9ca3af; margin-top: 1px; }
+
+.agribot-lang {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f9fafb;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.agribot-lang option { background: #111827; }
+
+/* Role bar */
+.agribot-role-bar {
+  padding: 10px 14px;
+  background: rgba(245,158,11,0.08);
+  border-bottom: 1px solid rgba(245,158,11,0.2);
+  font-size: 0.8rem;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.agribot-role-btns { display: flex; gap: 6px; }
+.role-btn {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.farmer-btn { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.farmer-btn:hover { background: rgba(34,197,94,0.35); }
+.buyer-btn { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.buyer-btn:hover { background: rgba(59,130,246,0.35); }
+
+/* Progress */
+.agribot-progress {
+  padding: 6px 14px;
+  background: rgba(34,197,94,0.06);
+  border-bottom: 1px solid rgba(34,197,94,0.1);
+  font-size: 0.72rem;
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.progress-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  flex: 1;
+}
+
+/* Messages */
+.agribot-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+.agribot-messages::-webkit-scrollbar { width: 4px; }
+.agribot-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.agribot-msg { display: flex; align-items: flex-end; gap: 7px; }
+.agribot-msg.user { flex-direction: row-reverse; }
+.msg-avatar { font-size: 1.1rem; flex-shrink: 0; margin-bottom: 2px; }
+
+.msg-bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  white-space: pre-line;
+  word-break: break-word;
+}
+.agribot-msg.bot .msg-bubble {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-bottom-left-radius: 4px;
+  color: #e5e7eb;
+}
+.agribot-msg.user .msg-bubble {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+
+/* Typing dots */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 14px !important;
+}
+.typing-indicator span {
+  width: 7px; height: 7px;
+  background: #4ade80;
+  border-radius: 50%;
+  display: inline-block;
+}
+.typing-indicator span:nth-child(1) { animation: typing-dot 1.2s 0.0s infinite; }
+.typing-indicator span:nth-child(2) { animation: typing-dot 1.2s 0.2s infinite; }
+.typing-indicator span:nth-child(3) { animation: typing-dot 1.2s 0.4s infinite; }
+
+/* Chips */
+.agribot-chips {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.agribot-chips::-webkit-scrollbar { display: none; }
+.chip {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #4ade80;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.chip:hover {
+  background: rgba(34,197,94,0.22);
+  border-color: rgba(34,197,94,0.5);
+  transform: translateY(-1px);
+}
+
+/* Explain button */
+.agribot-explain-btn {
+  margin: 0 12px 8px;
+  padding: 9px;
+  background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(21,128,61,0.15));
+  border: 1px solid rgba(34,197,94,0.3);
+  color: #4ade80;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+.agribot-explain-btn:hover {
+  background: linear-gradient(135deg, rgba(34,197,94,0.32), rgba(21,128,61,0.25));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+}
+
+/* Input row */
+.agribot-input-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.2);
+}
+.agribot-input {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 9px 13px;
+  color: #f9fafb;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.agribot-input:focus { border-color: rgba(34,197,94,0.5); }
+.agribot-input::placeholder { color: #6b7280; }
+
+.agribot-mic {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #9ca3af;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.agribot-mic:hover { background: rgba(255,255,255,0.14); color: #f9fafb; }
+.agribot-mic.active {
+  background: rgba(239,68,68,0.2);
+  border-color: rgba(239,68,68,0.4);
+  color: #f87171;
+  animation: mic-pulse 1s infinite;
+}
+
+.agribot-send, .agribot-stop {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.agribot-send {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(34,197,94,0.35);
+}
+.agribot-send:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(34,197,94,0.5); }
+.agribot-stop {
+  background: rgba(239,68,68,0.2);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+.agribot-stop:hover { background: rgba(239,68,68,0.32); }
+
+/* Header right group */
+.agribot-header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.agribot-lang-lock {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #4ade80;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 6px;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+
+/* Speaking banner */
+@keyframes speaking-dot {
+  0%,80%,100% { transform: scaleY(0.4); opacity:0.5; }
+  40% { transform: scaleY(1.3); opacity:1; }
+}
+.agribot-speaking-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: linear-gradient(90deg, rgba(34,197,94,0.12), rgba(21,128,61,0.08));
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4ade80;
+  flex-shrink: 0;
+}
+.speaking-dots { display: flex; gap: 2px; align-items: center; }
+.speaking-dots span {
+  width: 4px; height: 14px;
+  background: #22c55e;
+  border-radius: 2px;
+  display: inline-block;
+  transform-origin: bottom;
+}
+.speaking-dots span:nth-child(1) { animation: speaking-dot 0.9s 0.0s infinite; }
+.speaking-dots span:nth-child(2) { animation: speaking-dot 0.9s 0.15s infinite; }
+.speaking-dots span:nth-child(3) { animation: speaking-dot 0.9s 0.3s infinite; }
+.stop-speak-btn {
+  margin-left: auto;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #f87171;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.stop-speak-btn:hover { background: rgba(239,68,68,0.28); }
+
+/* Message bubble wrapper for replay button */
+.msg-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 82%;
+}
+.agribot-msg.user .msg-bubble-wrap { align-items: flex-end; }
+.agribot-msg.bot  .msg-bubble-wrap { align-items: flex-start; }
+.agribot-msg.bot  .msg-bubble,
+.agribot-msg.user .msg-bubble { max-width: 100%; }
+
+.msg-replay-btn {
+  background: none;
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 6px;
+  color: #4ade80;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  align-self: flex-start;
+}
+.agribot-msg:hover .msg-replay-btn { opacity: 1; }
+.msg-replay-btn:hover { background: rgba(34,197,94,0.15); }
+
+/* Quick action buttons */
+.agribot-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 8px 12px 4px;
+  flex-shrink: 0;
+}
+.quick-btn {
+  padding: 7px 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #d1d5db;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quick-btn:hover {
+  background: rgba(34,197,94,0.12);
+  border-color: rgba(34,197,94,0.3);
+  color: #4ade80;
+  transform: translateY(-1px);
 }
