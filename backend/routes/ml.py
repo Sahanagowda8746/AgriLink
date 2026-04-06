@@ -15,12 +15,20 @@ def disease_detection():
     if not file or file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
-    # Read image bytes
     image_bytes = file.read()
     if len(image_bytes) == 0:
         return jsonify({'error': 'Empty file'}), 400
 
     result = analyze_image(image_bytes)
+
+    # Invalid image or low-confidence → return 422 with typed error
+    if not result.get('valid', True):
+        return jsonify({
+            'error': True,
+            'type': result.get('type', 'invalid_image'),
+            'message': result.get('message', 'Invalid image. Please upload a clear plant image.')
+        }), 422
+
     return jsonify({'result': result}), 200
 
 
